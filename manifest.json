@@ -1,6 +1,6 @@
 {
   "name": "Hatebu comment Extension",
-  "version": "1.0",
+  "version": "0.2",
   "description": "Display Hatena bookmark comments",
   "browser_action": {
     "default_icon": "icon.png"
@@ -10,6 +10,7 @@
     "popup": "popup.html"
   },
   "permissions": [
+    "tabs",
     "http://b.hatena.ne.jp/"
   ]
 }

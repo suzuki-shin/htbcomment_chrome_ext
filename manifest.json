@@ -4,6 +4,7 @@
   "description": "Display Hatena bookmark comments",
   "browser_action": {
     "default_icon": "icon.png",
+    "default_title": "はてぶコメントを表示",
     "popup": "popup.html"
   },
   "permissions": [

@@ -12,46 +12,12 @@ import JS
 main :: Fay ()
 main = do
   ready $ do
-    putStrLn "Htbcomment2"
---     select "body" >>= append "XXXXXXXXXX ########## "
-    div <- select "#comments"
+--     div <- select "#comments"
     wid <- getWindowId
     chromeTabsGetselected wid $ \tab -> do
---       let t' = toTabFromJSON tab
---       putStrLn "---1"
---       putStrLn $ show t'
---       putStrLn "---2"
---       putStrLn $ title t'
---       putStrLn "---3"
---       putStrLn $ jsStrToHsStr $ title t'
---       putStrLn "---4"
---       putStrLn $ tail $ title t'
---       putStrLn $ init $ title t'
---       putStrLn $ init $ tail $ title t'
---       putStrLn "---5"
---       putStrLn $ title t' ++ title t'
---       putStrLn "---6"
---       putStrLn $ jsStrConcat (title t') (title t')
---     chromeTabsGetselected wid $ \json -> do
---       tab <- fromJSON json
-      putStrLn $ show $ url tab
-      select "#dump" >>= append "(url tab)"
---       select "#dump" >>= append (show (url tab)) -- OK
---       putStrLn $ url tab        -- NG ""
---       putStrLn $ arrToStr' $ url tab -- NG ""
-      putStrLn $ show tab            -- OK {"active":true,"favIconUrl":"chrome://theme/IDR_EXTENSIONS_FAVICON@2x","highlighted":true,"id":4,"incognito":false,"index":1,"pinned":false,"selected":true,"status":"complete","title":"拡張機能","url":"chrome://extensions/","windowId":1}
---       let url' = baseUrl ++ show (url tab) -- NG http://b.hatena.ne.jp/entry/jsonlite/"chrome://extensions/"
---       let url' = baseUrl ++ arrToStr' (url tab) -- NG http://b.hatena.ne.jp/entry/jsonlite/
---       let url' = baseUrl ++ (url tab)
---       let url' = baseUrl ++ (url t') -- NG http://b.hatena.ne.jp/entry/jsonlite/"chrome://extensions/"
-      putStrLn "(js \"url\" tab)"
-      putStrLn (js "url" tab)
-      putStrLn $ show (js "url" tab)
-      let url' = baseUrl ++ (js "url" tab) -- NG http://b.hatena.ne.jp/entry/jsonlite/"chrome://extensions/"
---       let url' = concat[baseUrl, (url t')] -- NG http://b.hatena.ne.jp/entry/jsonlite/"chrome://extensions/"
-      putStrLn url'
+      let url' = baseUrl ++ (js "url" tab)
       select "#dump" >>= append "api access..."
---       getJSON url' $ \entry -> displayComment $ getBookmarks entry
+      getJSON url' $ \entry -> displayComment (bookmarksFromJs "bookmarks" entry)
       return ()
     return ()
 
@@ -74,11 +40,12 @@ getJSON :: String -> (Entry -> Fay ()) -> Fay ()
 getJSON = ffi "$.getJSON(%1, %2)"
 
 displayComment :: [Bookmark] -> Fay ()
-displayComment bs = do
-  comments <- arrToStr $ concatMap ((++ "<br/>") . getComment) $ take 20 bs
-  select "#comments" >>= append comments
-  return ()
-
+displayComment [] = return ()
+displayComment (b:bs) = case (js "comment" b) of
+  "" -> displayComment bs
+  c  -> do
+    select "#comments" >>= append (c ++ "<br>")
+    displayComment bs
 
 -- {"active":true,"favIconUrl":"http://www.alc.co.jp/favicon.ico","highlighted":true,
 --  "id":13,"incognito":false,"index":3,"pinned":false,"selected":true,"status":"complete",
@@ -104,10 +71,10 @@ data Entry = Entry {
   } deriving (Show)
 
 data Bookmark = Bookmark {
-    getUser :: String
-  , getTags :: [String]
-  , getTimestamp :: String
-  , getComment :: String
+    user :: String
+  , tags :: [String]
+  , timestamp :: String
+  , comment :: String
   } deriving (Show)
 
 fromJSON :: String -> Fay a
@@ -123,3 +90,6 @@ fromJSON = ffi "JSON.parse(%1)"
 -- jsStrToHsStr = init . tail
 js :: String -> a -> String
 js = ffi "%2[%1]"
+
+bookmarksFromJs :: String -> a -> [Bookmark]
+bookmarksFromJs = ffi "%2[%1]"

@@ -32,7 +32,7 @@ ready = ffi "jQuery(%1)"
 localStorageSet :: String -> String -> Fay ()
 localStorageSet = ffi "localStorage.setItem(%1, %2)"
 
-localStorageGet :: String -> String
+localStorageGet :: String -> Nullable String
 localStorageGet = ffi "localStorage.getItem(%1)"
 
 remove :: JQuery -> Fay JQuery
@@ -136,3 +136,7 @@ jqVal = ffi "%1.val()"
 
 concatJQuery :: [JQuery] -> Fay JQuery
 concatJQuery = ffi "$(%1)"
+
+getJSON :: String -> (a -> Fay ()) -> Fay ()
+getJSON = ffi "$.getJSON(%1, %2)"
+

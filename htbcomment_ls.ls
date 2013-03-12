@@ -7,10 +7,7 @@ dt = new Date()
 now = dt.getTime()
 
 displayComment = (bookmarks) ->
-  $('#comments').append(
-    p.concatMap(
-      ((b) -> b.comment + '<br/>'),
-      p.take(20, p.filter(((b) -> b.comment), bookmarks))))
+  $('#comments').append( p.concatMap((.comment + '<br/>'), p.take(20, p.filter((.comment), bookmarks))) )
 
 # cacheがあればcacheから、なければajaxでentryデータを取得して、表示する
 getAndDisplay = (url, dispFunc) ->
@@ -24,9 +21,9 @@ getAndDisplay = (url, dispFunc) ->
     bkmUrl = "http://b.hatena.ne.jp/entry/jsonlite/" + url
     $('#dump').append('api access...')
     $.getJSON(bkmUrl, ((json) ->
-      json.createtd = now
-      localStorage[url] = JSON.stringify(json) # set cache
-      dispFunc(json.bookmarks)
+      if json?.bookmarks? then dispFunc(json.bookmarks)
+
+      localStorage[url] = JSON.stringify({createtd: now, bookmarks: []} <<< json) # set cache
     ))
 
 $(->

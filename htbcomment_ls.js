@@ -6,10 +6,10 @@
   dt = new Date();
   now = dt.getTime();
   displayComment = function(bookmarks){
-    return $('#comments').append(p.concatMap(function(b){
-      return b.comment + '<br/>';
-    }, p.take(20, p.filter(function(b){
-      return b.comment;
+    return $('#comments').append(p.concatMap(function(it){
+      return it.comment + '<br/>';
+    }, p.take(20, p.filter(function(it){
+      return it.comment;
     }, bookmarks))));
   };
   getAndDisplay = function(url, dispFunc){
@@ -23,9 +23,13 @@
       bkmUrl = "http://b.hatena.ne.jp/entry/jsonlite/" + url;
       $('#dump').append('api access...');
       return $.getJSON(bkmUrl, function(json){
-        json.createtd = now;
-        localStorage[url] = JSON.stringify(json);
-        return dispFunc(json.bookmarks);
+        if ((json != null ? json.bookmarks : void 8) != null) {
+          dispFunc(json.bookmarks);
+        }
+        return localStorage[url] = JSON.stringify(import$({
+          createtd: now,
+          bookmarks: []
+        }, json));
       });
     }
   };
@@ -34,4 +38,9 @@
       return getAndDisplay(tab.url, displayComment);
     });
   });
+  function import$(obj, src){
+    var own = {}.hasOwnProperty;
+    for (var key in src) if (own.call(src, key)) obj[key] = src[key];
+    return obj;
+  }
 }).call(this);

@@ -1,2 +1,3 @@
 #!/bin/sh
-livescript -cbw *.ls
+livescript -cw *.ls
+# livescript -cbw *.ls
